@@ -2,6 +2,8 @@ import os
 import logging.config
 import h5py
 import numpy as np
+# Our user made files
+from createLabels import *
 logger = logging.getLogger(__name__)
 
 
@@ -15,6 +17,9 @@ def main(args):
             data[cls] = list(hf[cls]['data'])
     idx = np.arange(0, len(classes))  # to id the classes numerically
     logger.info('The classes included in the data are {}'.format(classes))
+
+    # Gets a matrix of input data and a corresponding vector of target labels
+    inputs, targets = createLabels(data)
 
 
 
