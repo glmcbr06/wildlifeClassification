@@ -19,8 +19,8 @@ def createLabels(data):
         animal_samples = np.array(data[animal])
         inputs.append(animal_samples)
         temp = [target_class] * (animal_samples.shape[0])
-        targets.append(temp)
+        targets = targets + temp
         target_class += 1
 
-    inputs = np.vstack(inputs)
+    inputs = np.vstack(inputs).reshape(len(targets), -1)
     return inputs, targets

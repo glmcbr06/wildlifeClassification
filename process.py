@@ -8,21 +8,29 @@ logger = logging.getLogger(__name__)
 
 
 def main(args):
-    file = args.filepath
+
+    np.random.seed(1)
+    file = args.filePath
+    if args.trainingPercent:
+        pct = args.trainingPercent
+    else:
+        pct = .6
+
     data = {}
     with h5py.File(file, "r") as hf:
         classes = list(hf)
         # idx = np.arange(0, len(classes))
         for cls in classes:
             data[cls] = list(hf[cls]['data'])
-    idx = np.arange(0, len(classes))  # to id the classes numerically
     logger.info('The classes included in the data are {}'.format(classes))
-
     # Gets a matrix of input data and a corresponding vector of target labels
     inputs, targets = createLabels(data)
-
-
-
+    targets = np.array(targets).reshape(inputs.shape[0], 1)
+    npData = np.hstack((inputs, targets))
+    np.random.shuffle(npData)
+    n = npData.shape[0]
+    rows = np.random.randint(n, size=int(n*pct))
+    train = npData[rows, :]
 
 
 if __name__ == "__main__":
@@ -31,8 +39,10 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--filepath', help='cluster data')
+    parser.add_argument('--filePath', help='cluster data')
+    parser.add_argument('--trainingPercent', help='choose the training percent')
     parser.add_argument('-v', action='store_true', help='Show DEBUG log')
+
 
     parsed_args = parser.parse_args()
     if parsed_args.v:
