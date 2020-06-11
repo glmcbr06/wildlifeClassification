@@ -22,5 +22,7 @@ def createLabels(data):
         targets = targets + temp
         target_class += 1
 
-    inputs = np.vstack(inputs).reshape(len(targets), -1)
+    # flatten the data with reshape
+    # inputs = np.vstack(inputs).reshape(len(targets), -1)
+    inputs = np.vstack(inputs)
     return inputs, targets

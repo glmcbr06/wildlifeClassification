@@ -1,9 +1,12 @@
+from keras.models import Sequential
 import os
 import logging.config
 import h5py
-import numpy as np
-# Our user made files
 from createLabels import *
+
+from keras.layers import Dense, Conv2D, Flatten
+from keras.utils import to_categorical
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,12 +28,21 @@ def main(args):
     logger.info('The classes included in the data are {}'.format(classes))
     # Gets a matrix of input data and a corresponding vector of target labels
     inputs, targets = createLabels(data)
+    print(inputs.shape)
+    exit()
+
     targets = np.array(targets).reshape(inputs.shape[0], 1)
     npData = np.hstack((inputs, targets))
     np.random.shuffle(npData)
     n = npData.shape[0]
     rows = np.random.randint(n, size=int(n*pct))
     train = npData[rows, :]
+
+    x, y = train[:, :train.shape[1] - 1], train[:, train.shape[1] - 1]
+    print(x.shape)
+    exit()
+
+
 
 
 if __name__ == "__main__":
