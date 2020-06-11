@@ -1,14 +1,20 @@
 from keras.models import Sequential
+# import tensorflow
 import os
 import logging.config
 import h5py
 from createLabels import *
-
 from keras.layers import Dense, Conv2D, Flatten
 from keras.utils import to_categorical
 
 logger = logging.getLogger(__name__)
 
+
+def setdiff_sorted(array1,array2,assume_unique=False):
+    ans = np.setdiff1d(array1,array2,assume_unique).tolist()
+    if assume_unique:
+        return sorted(ans)
+    return ans
 
 def main(args):
 
@@ -28,21 +34,31 @@ def main(args):
     logger.info('The classes included in the data are {}'.format(classes))
     # Gets a matrix of input data and a corresponding vector of target labels
     inputs, targets = createLabels(data)
-    print(inputs.shape)
-    exit()
+    n = inputs.shape[0]
+    pct = .6
+    allRows = np.arange(0, inputs.shape[0])
+    np.random.shuffle(allRows)
+    inputs = inputs[allRows, :]
+    t = []
+    for i in allRows:
+        t.append(targets[i])
+    xTrain, xTest = inputs[:int(n*pct), :], inputs[int(n*pct):, :]
+    yTrain, yTest = t[:int(n*pct)], t[int(n*pct):]
 
-    targets = np.array(targets).reshape(inputs.shape[0], 1)
-    npData = np.hstack((inputs, targets))
-    np.random.shuffle(npData)
-    n = npData.shape[0]
-    rows = np.random.randint(n, size=int(n*pct))
-    train = npData[rows, :]
+    print(xTrain.shape, xTest.shape)
+    print(len(yTrain), len(yTest))
 
-    x, y = train[:, :train.shape[1] - 1], train[:, train.shape[1] - 1]
-    print(x.shape)
-    exit()
+    yTrain = to_categorical(yTrain)
+    yTest = to_categorical(yTest)
 
-
+    model = Sequential()
+    model.add(Conv2D(64, kernel_size=3, activation='relu', input_shape=(128, 128, 3)))
+    model.add(Conv2D(32, kernel_size=3, activation='relu'))
+    model.add(Flatten())
+    model.add(Dense(5, activation='softmax'))
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    model.fit(xTrain, yTrain, validation_data=(xTest, yTest), epochs=3)
+    model.predict(xTest[:4])
 
 
 if __name__ == "__main__":
